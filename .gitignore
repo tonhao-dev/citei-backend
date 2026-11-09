@@ -6,3 +6,9 @@ tmp/
 temp/
 .env
 coverage
+
+# Pact
+/logs/
+
+# Teste de carga (relatórios gerados)
+/load-test/reports/

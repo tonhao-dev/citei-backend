@@ -5,6 +5,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/tests/**/*.spec.ts'],
+    // Contratos precisam do broker: rode com "npm run test:pact".
+    exclude: ['**/node_modules/**', 'src/tests/pact/**'],
     coverage: {
       provider: 'v8',
       include: ['src/app/**/*.ts'],

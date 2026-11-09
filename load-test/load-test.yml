@@ -1,0 +1,112 @@
+# Teste de carga do citei-backend com Artillery.
+#
+# Rodar (a API precisa estar no ar):
+#   npm run load:test            -> contra http://localhost:3123 (veja load-test/.env)
+#   npm run load:test:staging    -> contra o endereço da variável API_URL do seu terminal
+config:
+  # Endereço da API. Vem da variável de ambiente API_URL, então dá para trocar
+  # entre localhost e staging sem editar este arquivo.
+  target: "{{ $processEnvironment.API_URL }}"
+
+  # Funções TypeScript usadas nos cenários (hooks beforeRequest e afterResponse).
+  processor: "./processor.ts"
+
+  # Fases da carga. Elas rodam uma depois da outra.
+  #   duration    = quantos segundos a fase dura
+  #   arrivalRate = quantos usuários virtuais NOVOS chegam por segundo
+  #   rampTo      = a taxa vai subindo aos poucos até este valor
+  phases:
+    # 1. Aquecimento: pouca gente, só para a API e o banco acordarem.
+    - name: Aquecimento
+      duration: 30
+      arrivalRate: 2
+
+    # 2. Subida: a chegada sobe de 2 para 10 usuários por segundo ao longo de 60 s.
+    - name: Subida
+      duration: 60
+      arrivalRate: 2
+      rampTo: 10
+
+    # 3. Carga pesada: 10 usuários novos por segundo, fixo, durante 60 s.
+    - name: Carga pesada
+      duration: 60
+      arrivalRate: 10
+
+  # Plugins que já vêm com o Artillery 2.
+  plugins:
+    expect: {}   # permite conferir a resposta (statusCode) em cada passo
+    ensure: {}   # faz o comando falhar se as metas abaixo não forem cumpridas
+
+    # Plugin próprio (load-test/plugins): PARA o teste na hora quando os erros passam do limite.
+    # A regra não depende da máquina: máquinas fracas chegam no limite antes e o teste termina sozinho.
+    stop-on-errors:
+      maxErrorRate: 5         # para se mais de 5% dos pedidos de uma janela de 10 s derem erro
+      minRequests: 100        # ignora janelas com poucos pedidos (evita falso alarme)
+      consecutiveWindows: 2   # quantas janelas seguidas precisam passar do limite
+
+  # Metas: se alguma falhar, o "artillery run" termina com erro (exit code diferente de 0).
+  ensure:
+    thresholds:
+      - http.response_time.p95: 500   # 95% das respostas em até 500 ms
+    maxErrorRate: 1                    # no máximo 1% de erros
+
+  # Ambientes extras: use com --environment staging.
+  # Quem define "phases" aqui troca TODAS as fases de cima.
+  environments:
+    staging:
+      phases:
+        - name: Aquecimento
+          duration: 60
+          arrivalRate: 5
+        - name: Subida
+          duration: 120
+          arrivalRate: 5
+          rampTo: 50
+        - name: Carga pesada
+          duration: 120
+          arrivalRate: 50
+
+    # Teste de estresse: a carga só sobe, degrau por degrau, até a API ficar lenta ou errar.
+    # O ponto de ruptura é o degrau em que o p95 dispara ou os erros começam
+    # (veja o gráfico de latência no relatório). Use: npm run load:test:stress
+    # CUIDADO: pode travar a API e a sua máquina. Só local ou staging, nunca produção.
+    stress:
+      phases:
+        # maxVusers = limite de usuários ao mesmo tempo, para o Artillery não virar o gargalo.
+        - { name: "Degrau 1", duration: 45, arrivalRate: 10, rampTo: 100, maxVusers: 2000 }
+        - { name: "Degrau 2", duration: 45, arrivalRate: 100, rampTo: 250, maxVusers: 2000 }
+        - { name: "Degrau 3", duration: 45, arrivalRate: 250, rampTo: 500, maxVusers: 2000 }
+        - { name: "Degrau 4", duration: 45, arrivalRate: 500, rampTo: 750, maxVusers: 2000 }
+        - { name: "Degrau 5", duration: 45, arrivalRate: 750, rampTo: 1000, maxVusers: 2000 }
+        - { name: "Degrau 6", duration: 45, arrivalRate: 1000, maxVusers: 2000 }
+scenarios:
+  # 60% dos usuários só olham a lista.
+  - name: Listar coleções
+    weight: 6
+    flow:
+      - get:
+          url: "/colecao"
+          expect:
+            - statusCode: 200
+
+  # 40% criam uma coleção, leem e apagam a mesma coleção (não deixa lixo no banco).
+  - name: Criar, ler e apagar uma coleção
+    weight: 4
+    flow:
+      - post:
+          url: "/colecao"
+          beforeRequest: gerarColecao     # função do processor.ts: monta o corpo com dados novos
+          afterResponse: contarResposta   # função do processor.ts: emite métricas próprias
+          capture:
+            - json: "$.id"
+              as: colecaoId
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/colecao/{{ colecaoId }}"
+          expect:
+            - statusCode: 200
+      - delete:
+          url: "/colecao/{{ colecaoId }}"
+          expect:
+            - statusCode: 200
