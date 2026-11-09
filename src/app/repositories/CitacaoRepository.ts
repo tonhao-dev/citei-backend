@@ -28,11 +28,13 @@ class CitacaoRepository implements CitacaoRepositoryInterface {
       colecao ON citacao.id_colecao = colecao.id
   `;
     
+    const params: string[] = []
     if (titulo) {
-      query += `WHERE citacao.titulo LIKE '%${titulo}%'`
+      query += `WHERE citacao.titulo ILIKE $1`
+      params.push(`%${titulo}%`)
     }
 
-    return this.citacaoRepository.query(query)
+    return this.citacaoRepository.query(query, params)
   }
 
   async findById(id: number): Promise<CitacaoEntity | null> {
@@ -51,9 +53,9 @@ class CitacaoRepository implements CitacaoRepositoryInterface {
     INNER JOIN
       colecao ON citacao.id_colecao = colecao.id
     WHERE
-      citacao.id = ${id}`;
+      citacao.id = $1`;
   
-    const citacao = await this.citacaoRepository.query(query)
+    const citacao = await this.citacaoRepository.query(query, [id])
 
     return citacao.length ? citacao[0] : null
   }

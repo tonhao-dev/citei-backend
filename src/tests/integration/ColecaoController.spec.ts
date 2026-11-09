@@ -1,4 +1,4 @@
-import request, { SuperTest, Test } from 'supertest';
+import request from 'supertest';
 import express, { Express } from 'express';
 import cors from 'cors';
 import ColecaoController from '../../app/controllers/ColecaoController';
@@ -25,7 +25,7 @@ jest.mock('../../app/repositories/ColecaoRepository', () => {
 
 let app: Express;
 let server: any;
-let agent: SuperTest<Test>;
+let agent: ReturnType<typeof request.agent>;
 
 beforeAll((done) => {
   app = express();
@@ -34,7 +34,7 @@ beforeAll((done) => {
   app.use(express.json());
   app.use(ColecaoController.routes);
 
-  server = app.listen(3000, () => {
+  server = app.listen(0, () => {
     agent = request.agent(server);
     done();
   });
@@ -77,6 +77,8 @@ describe('ColecaoController', () => {
   it('deve retornar um código de status 200 OK e um novo objeto colecao para POST /colecao', async () => {
     const response = await request(app).post('/colecao').send({
       titulo: 'titulo',
+      autor: 'autor',
+      imagem: 'imagem',
     });
 
     expect(response.status).toBe(200);
@@ -114,7 +116,7 @@ describe('ColecaoController', () => {
     const response = await request(app).put('/colecao/1').send(colecao);
 
     expect(response.status).toBe(200);
-    expect(typeof response.body === 'object').toBe(false);
+    expect(typeof response.body === 'object').toBe(true);
     expect(response.body).toEqual(colecao);
   });
 

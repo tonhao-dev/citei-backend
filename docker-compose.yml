@@ -1,0 +1,48 @@
+name: citei-backend
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-citei}
+      POSTGRES_PASSWORD: ${DB_PASS:-citei}
+      POSTGRES_DB: ${DB_NAME:-citei}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - citei_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-citei} -d ${DB_NAME:-citei}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    networks:
+      - default
+      - citei-net
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-citei}
+      DB_PASS: ${DB_PASS:-citei}
+      DB_NAME: ${DB_NAME:-citei}
+    ports:
+      - "3123:3000"
+    restart: unless-stopped
+    networks:
+      - default
+      - citei-net
+
+volumes:
+  citei_pgdata:
+
+networks:
+  citei-net:
+    name: citei-net
