@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ColecaoController deve retornar um código de status 422 ao deixar de enviar dados obrigatorios 1`] = `
+exports[`ColecaoController > deve retornar um código de status 422 ao deixar de enviar dados obrigatorios 1`] = `
 {
   "errors": [
     {
@@ -31,7 +31,7 @@ exports[`ColecaoController deve retornar um código de status 422 ao deixar de e
 }
 `;
 
-exports[`ColecaoController deve retornar um código de status 422 ao deixar de enviar o titulo 1`] = `
+exports[`ColecaoController > deve retornar um código de status 422 ao deixar de enviar o autor 1`] = `
 {
   "errors": [
     {
