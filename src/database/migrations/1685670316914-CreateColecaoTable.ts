@@ -16,7 +16,6 @@ export class CreateColecaoTable1685670316914 implements MigrationInterface {
                 {
                     name: "titulo",
                     type: "varchar",
-                    isPrimary: true,
                     length: "100",
                     isNullable: false,
                 },

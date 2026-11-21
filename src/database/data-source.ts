@@ -6,13 +6,14 @@ import ColecaoEntity from "../app/entities/ColecaoEntity"
 import CitacaoEntity from "../app/entities/CitacaoEntity"
 
 export const AppDataSource = new DataSource({
-    type: process.env.DB_TYPE as any,
+    type: 'postgres',
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT as any,
+    port: Number(process.env.DB_PORT) || 5432,
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    synchronize: true,
+    synchronize: false,
+    migrationsRun: true,
     logging: false,
     entities: [ColecaoEntity, CitacaoEntity],
     migrations: [CreateColecaoTable1685670316914, CreateCitacaoTable1685674751168],

@@ -1,13 +1,14 @@
+import type { Mocked } from 'vitest';
 import { ColecaoRepositoryInterface } from "../../../app/interfaces/repositories/ColecaoRepositoryInterface";
 import { CreatedColecaoFixture, ManyColecaoFixture, OneColecaoFixture } from "../fixtures/ColecaoFixture";
 
-export const ColecaoRepositoryMock = (): jest.Mocked<ColecaoRepositoryInterface> => {
+export const ColecaoRepositoryMock = (): Mocked<ColecaoRepositoryInterface> => {
   return {
-    findAll: jest.fn().mockResolvedValue(ManyColecaoFixture),
-    findById: jest.fn().mockResolvedValue(OneColecaoFixture),
-    create: jest.fn().mockResolvedValue(CreatedColecaoFixture),
-    update: jest.fn().mockResolvedValue(OneColecaoFixture),
-    delete: jest.fn(),
-    getColecaoOnly: jest.fn().mockResolvedValue(OneColecaoFixture),
-  } as jest.Mocked<ColecaoRepositoryInterface>;
+    findAll: vi.fn().mockResolvedValue(ManyColecaoFixture),
+    findById: vi.fn().mockResolvedValue(OneColecaoFixture),
+    create: vi.fn().mockResolvedValue(CreatedColecaoFixture),
+    update: vi.fn().mockResolvedValue(OneColecaoFixture),
+    delete: vi.fn(),
+    getColecaoOnly: vi.fn().mockResolvedValue(OneColecaoFixture),
+  } as Mocked<ColecaoRepositoryInterface>;
 };

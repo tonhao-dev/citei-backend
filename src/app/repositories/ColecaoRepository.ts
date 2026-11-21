@@ -22,11 +22,13 @@ class ColecaoRepository implements ColecaoRepositoryInterface {
       colecao
   `;
 
+    const params: string[] = [];
     if(titulo) {
-      query += `WHERE colecao.titulo LIKE '%${titulo}%'`
+      query += `WHERE colecao.titulo ILIKE $1`
+      params.push(`%${titulo}%`)
     }
   
-    return this.colecaoRepository.query(query)
+    return this.colecaoRepository.query(query, params)
   }
 
   async findById(id: number): Promise<ColecaoEntity | undefined> {
@@ -41,9 +43,9 @@ class ColecaoRepository implements ColecaoRepositoryInterface {
     FROM
       colecao
     WHERE
-      colecao.id = ${id}`;
+      colecao.id = $1`;
 
-    const colecao =  await this.colecaoRepository.query(query)
+    const colecao =  await this.colecaoRepository.query(query, [id])
 
     return colecao.length ? colecao[0] : undefined
   }

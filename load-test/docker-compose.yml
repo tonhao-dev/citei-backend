@@ -1,0 +1,26 @@
+name: citei-load-test
+
+# Roda o Artillery contra a API. Use os scripts do package.json:
+#   npm run load:up     -> sobe a API e o banco (docker-compose.yml da raiz)
+#   npm run load:test   -> roda o teste de carga
+#   npm run load:report -> gera o relatório HTML
+services:
+  artillery:
+    build: .
+    environment:
+      # Dentro da rede citei-net a API se chama "api". Para outro ambiente:
+      #   $env:API_URL = "https://staging.exemplo.com"   (PowerShell)
+      API_URL: ${API_URL:-http://api:3000}
+      # Onde o Artillery procura plugins próprios (load-test/plugins).
+      ARTILLERY_PLUGIN_PATH: /work/load-test/plugins
+    volumes:
+      - ./:/work/load-test
+    working_dir: /work
+    networks:
+      - citei-net
+    command: artillery run --output load-test/reports/report.json load-test/load-test.yml
+
+networks:
+  citei-net:
+    external: true
+    name: citei-net

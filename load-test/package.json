@@ -1,0 +1,8 @@
+{
+  "name": "citei-load-test",
+  "private": true,
+  "description": "Teste de carga com Artillery. Roda dentro do Docker com Node 22 (veja Dockerfile).",
+  "devDependencies": {
+    "artillery": "2.0.34"
+  }
+}

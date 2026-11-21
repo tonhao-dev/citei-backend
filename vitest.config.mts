@@ -1,0 +1,16 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['src/tests/**/*.spec.ts'],
+    // Contratos precisam do broker: rode com "npm run test:pact".
+    exclude: ['**/node_modules/**', 'src/tests/pact/**'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/app/**/*.ts'],
+      exclude: ['src/app/entities/**', 'src/app/interfaces/**'],
+    },
+  },
+});

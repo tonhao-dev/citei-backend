@@ -4,6 +4,11 @@ node_modules/
 build/
 tmp/
 temp/
-package-lock.json
 .env
 coverage
+
+# Pact
+/logs/
+
+# Teste de carga (relatórios gerados)
+/load-test/reports/

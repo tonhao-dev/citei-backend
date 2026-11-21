@@ -9,76 +9,130 @@ describe('ColecaoService', () => {
   let colecaoRepositoryMock: ColecaoRepositoryInterface;
 
   beforeEach(() => {
+    // Arrange
     colecaoRepositoryMock = ColecaoRepositoryMock();
     colecaoService = new ColecaoService(colecaoRepositoryMock);
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    // Teardown
+    vi.resetAllMocks();
   });
 
   describe('findAll', () => {
     it('should return all ColecaoEntity objects', async () => {
+      // Arrange
+      const expected = ManyColecaoFixture;
+
+      // Act
       const result = await colecaoService.findAll();
-      expect(result).toEqual(ManyColecaoFixture);
+
+      // Assert
+      expect(result).toEqual(expected);
       expect(colecaoRepositoryMock.findAll).toHaveBeenCalled();
     });
 
     it('should call the repository with the specified title', async () => {
-      await colecaoService.findAll('titulo');
+      // Arrange
+      const titulo = 'titulo';
+
+      // Act
+      await colecaoService.findAll(titulo);
+
+      // Assert
       expect(colecaoRepositoryMock.findAll).toHaveBeenCalledWith('titulo');
     });
   });
 
   describe('findById', () => {
     it('should return the ColecaoEntity object with the specified ID', async () => {
+      // Arrange
+      const expected = OneColecaoFixture;
+
+      // Act
       const result = await colecaoService.findById(1);
-      expect(result).toEqual(OneColecaoFixture);
+
+      // Assert
+      expect(result).toEqual(expected);
       expect(colecaoRepositoryMock.findById).toHaveBeenCalledWith(1);
     });
 
     it('should throw an error if the ColecaoEntity with the specified ID is not found', async () => {
-      jest.spyOn(colecaoRepositoryMock, 'findById').mockResolvedValue(null);
+      // Arrange
+      vi.spyOn(colecaoRepositoryMock, 'findById').mockResolvedValue(null);
 
-      await expect(colecaoService.findById(1)).rejects.toThrow(AppError);
+      // Act
+      const promise = colecaoService.findById(1);
+
+      // Assert
+      await expect(promise).rejects.toThrow(AppError);
       expect(colecaoRepositoryMock.findById).toHaveBeenCalledWith(1);
     });
   });
 
   describe('create', () => {
     it('should create a new ColecaoEntity object', async () => {
+      // Arrange
+      const expected = CreatedColecaoFixture;
+
+      // Act
       const result = await colecaoService.create(ColecaoInterfaceFixture);
-      expect(result).toEqual(CreatedColecaoFixture);
+
+      // Assert
+      expect(result).toEqual(expected);
       expect(colecaoRepositoryMock.create).toHaveBeenCalledWith({ ...OneColecaoFixture, ...ColecaoInterfaceFixture, id: undefined });
     });
   });
 
   describe('update', () => {
     it('should update the ColecaoEntity object with the specified ID', async () => {
+      // Arrange
+      const expected = OneColecaoFixture;
+
+      // Act
       const result = await colecaoService.update(1, ColecaoInterfaceFixture);
 
-      expect(result).toEqual(OneColecaoFixture);
+      // Assert
+      expect(result).toEqual(expected);
       expect(colecaoRepositoryMock.getColecaoOnly).toHaveBeenCalledWith(1);
       expect(colecaoRepositoryMock.update).toHaveBeenCalledWith(1, { ...OneColecaoFixture, ...ColecaoInterfaceFixture });
     });
 
     it('should throw an error if the ColecaoEntity with the specified ID is not found', async () => {
-      jest.spyOn(colecaoRepositoryMock, 'getColecaoOnly').mockResolvedValue(null);
-      await expect(colecaoService.update(1, ColecaoInterfaceFixture)).rejects.toThrow(AppError);
+      // Arrange
+      vi.spyOn(colecaoRepositoryMock, 'getColecaoOnly').mockResolvedValue(null);
+
+      // Act
+      const promise = colecaoService.update(1, ColecaoInterfaceFixture);
+
+      // Assert
+      await expect(promise).rejects.toThrow(AppError);
       expect(colecaoRepositoryMock.getColecaoOnly).toHaveBeenCalledWith(1);
     });
   });
 
   describe('delete', () => {
     it('should delete the ColecaoEntity object with the specified ID', async () => {
-      await colecaoService.delete(1);
+      // Arrange
+      const id = 1;
+
+      // Act
+      await colecaoService.delete(id);
+
+      // Assert
       expect(colecaoRepositoryMock.getColecaoOnly).toHaveBeenCalledWith(1);
       expect(colecaoRepositoryMock.delete).toHaveBeenCalledWith(1);
     });
 
     it('should throw an error if the ColecaoEntity with the specified ID is not found', async () => {
-      jest.spyOn(colecaoRepositoryMock, 'getColecaoOnly').mockResolvedValue(null);
-      await expect(colecaoService.delete(1)).rejects.toThrow(AppError);
+      // Arrange
+      vi.spyOn(colecaoRepositoryMock, 'getColecaoOnly').mockResolvedValue(null);
+
+      // Act
+      const promise = colecaoService.delete(1);
+
+      // Assert
+      await expect(promise).rejects.toThrow(AppError);
       expect(colecaoRepositoryMock.getColecaoOnly).toHaveBeenCalledWith(1);
     });
   });
