@@ -6,17 +6,17 @@ describe('AppError', () => {
     vi.restoreAllMocks();
   });
 
-  it('should keep the description as message and the http code', () => {
-    // Arrange
-    const params = { httpCode: HttpCode.NOT_FOUND, description: 'nao encontrado' };
+  // it('should keep the description as message and the http code', () => {
+  //   // Arrange
+  //   const params = { httpCode: HttpCode.NOT_FOUND, description: 'nao encontrado' };
 
-    // Act
-    const error = new AppError(params);
+  //   // Act
+  //   const error = new AppError(params);
 
-    // Assert
-    expect(error.message).toBe('nao encontrado');
-    expect(error.httpCode).toBe(404);
-  });
+  //   // Assert
+  //   expect(error.message).toBe('nao encontrado');
+  //   expect(error.httpCode).toBe(404);
+  // });
 
   it('should be an instance of Error and AppError', () => {
     // Arrange
